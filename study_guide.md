@@ -1,38 +1,52 @@
-# Study Guide
+# 181 Study Guide
 
-## Data and Databases Generally
+## SQL
 
-Data is representative information pertaining to a particular entity, occurrence, or phenomenon. Data is used to model or describe something.
+  ### Identify the different types of `JOIN`s and explain their differences.
 
-Data is useful, in that it provides information. This information may be utilized in any number of ways to achieve a more accurate understanding of the entity, occurrence, or phenomenon that the data pertains to.
+  We often need to reference data that is distributed among multiple tables. In doing so, it may be useful to join tables together based on an association between them in order to access the targeted data. `JOIN` statements enable us to combine data from multiple tables and may utilize conditional expressions in order to access the desired data. 
+  
+  There are five main types of `JOIN`s, each allowing for different ways of merging and representing data across multiple tables.
 
-The extent to which data is useful is tightly coupled with its reliability, which is whether or not the data can be trusted, and its structure, which is how the data is represented. Data that is unreliable is not useful, as any insight gained from the data may not provide an accurate representation. Additionally, data that is not structured in a way that can be accessed consistently and non-ambiguously is much less useful than data that is structured in a way that optimizes for querying, manipulation, and processing. 
+  1. `INNER JOIN` 
 
-Databases play an important role in ensuring that data is reliable, consistent, and structured in a way that supports utilization. Databases provide a container for storing structured data, allowing for clear and consistent access and manipulation. 
+  2. `LEFT OUTER JOIN`
 
-Relational databases are structured stores of data that model relationships between data held in multiple tables. Relational databases distribute data among multiple tables, and create connections between data through the use of primary and foreign keys. The Relational Model informs the rules and structures governing the relationships between data held in the database. 
+  3. `RIGHT OUTER JOIN`
 
-Benefits of using relational databases include:
-  - Reduction in data duplication: Normalization
-    - data is distributed across multiple tables, and associations between data are established by reference.
-    - reduces amount of data that needs to be stored
-    - increases integrity of data as it is stored in one place
-  - Data consistency
-    - data stored in a relational database is structured in a way that reduces the likelihood of update anomalies as updates to data should occur in one place, rather than having to seek out all areas within a database that may reference the same data. 
-  - Query flexibility
-    - relational databases allow for data to be accessed in a flexible manner, as we can target specific data stored across multiple tables.
-  - Organization and Modularity of data
-    - relational databases allow for enhanced organization and modularity of data as we are able to avoid storing duplicate data and contributing to bloated tables. 
-  - Scalability
-    - organizing data in a relational database protects data integrity, consistency, and reliability as more data is added. 
+  4. `FULL OUTER JOIN`
+
+  5. `CROSS JOIN` 
 
 
-How relational databases support data integrity:
-  - Use of constraints surrounding what types of data can be stored, and how it should be formatted for storage. 
-  - Use of primary keys to uniquely identify records.
-  - Use of foreign keys to associate records with data stored in elsewhere in the database, and maintain referential integrity. 
-  - Unique constraints that limit duplication of data and increase referential integrity by ensuring unique identifiers. 
-  - Check constraints that ensure data meets particular standards for storage.
-  - Cascading Actions that automatically perform some action based on a triggering event. For example, foreign keys may contain an `ON DELETE` clause which tells the database how to properly handle associated data if records in related tables are deleted. 
 
 
+
+
+
+
+
+
+
+
+
+  - Name and define the three sub-languages of SQL and be able to classify different statements by sub-language.
+  - Write SQL statements using INSERT, UPDATE, DELETE, CREATE/ALTER/DROP TABLE, ADD/ALTER/DROP COLUMN.
+  - Understand how to use GROUP BY, ORDER BY, WHERE, and HAVING.
+  - Understand how to create and remove constraints, including CHECK constraints
+  - Be familiar with using subqueries
+
+## PostgreSQL
+
+  - Describe what a sequence is and what they are used for.
+  - Create an auto-incrementing column.
+  - Define a default value for a column.
+  - Be able to describe what primary, foreign, natural, and surrogate keys are.
+  - Create and remove CHECK constraints from a column.
+  - Create and remove foreign key constraints from a column.
+
+## Database Diagrams
+
+  - Talk about the different levels of schema.
+  - Define cardinality and modality.
+  - Be able to draw database diagrams using crow's foot notation.
