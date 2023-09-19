@@ -8,7 +8,9 @@
   
   There are five main types of `JOIN`s, each allowing for different ways of merging and representing data across multiple tables.
 
-  1. `INNER JOIN` 
+  1. `INNER JOIN`
+
+  This is the default `JOIN` used if simply using the statement `JOIN` without any other qualifiers. This type of `JOIN` will combine rows from two tables that satisfy a particular join condition. When two tables are joined, each row in the current table (left) will be compared to each row in the second table (right) and evaluated based on the join condition. If the two rows being compared satisfy the condition, they are joined together and included in a 'transient' table. The `SELECT` command will then utilize the 'transient' table in order to return targeted data as if it were querying a single table. 
 
   2. `LEFT OUTER JOIN`
 
