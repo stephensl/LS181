@@ -288,25 +288,125 @@
   ```
 
 #
+#
+#
 
 
+  ### Name and define the three sub-languages of SQL and be able to classify different statements by sub-language.
+
+  #### DDL
+
+  #### DML
+
+  #### DCL
+
+#
+#
+#
 
 
+  ### Write SQL statements using INSERT, UPDATE, DELETE, CREATE/ALTER/DROP TABLE, ADD/ALTER/DROP COLUMN.
+
+  #### Flashcards?
+
+  #### Tricky ones
+
+#
+#
+#
+  
+  
+  ### Understand how to use GROUP BY, ORDER BY, WHERE, and HAVING.
+
+  #### `GROUP BY`
+  
+  ##### Description:
+
+  ##### Use cases:
+
+  ##### Examples:
+
+  ##### Tricky ones: 
+
+#
+
+  #### `ORDER BY`
+
+  ##### Description:
+
+  ##### Use cases:
+
+  ##### Examples:
+
+  ##### Tricky ones: 
+
+#
+
+  #### `WHERE`
+
+  ##### Description:
+
+  ##### Use cases:
+
+  ##### Examples:
+
+  ##### Tricky ones: 
+
+#
+
+  #### `HAVING`
+
+  ##### Description:
+
+  ##### Use cases:
+
+  ##### Examples:
+
+  ##### Tricky ones: 
+
+#
+#
+#
 
 
+ ### Understand how to create and remove constraints, including CHECK constraints
+
+ #### Constraints
+
+ ##### Description:
+
+ ##### Common Constraints: 
+
+  ###### `UNIQUE`
+
+  ###### `CHECK`
+
+  ###### `NOT NULL`
+
+  ###### 
+
+#
+#
+#
 
 
+  ### Be familiar with using subqueries
+
+  #### Subqueries
+
+  ##### Description:
+
+  ##### Subqueries vs `JOIN`s
+
+  ##### Examples: 
+
+  ##### Tricky ones: 
+
+  ##### Optimization Implications
+
+  
 
 
-
-
-
-
-  - Name and define the three sub-languages of SQL and be able to classify different statements by sub-language.
-  - Write SQL statements using INSERT, UPDATE, DELETE, CREATE/ALTER/DROP TABLE, ADD/ALTER/DROP COLUMN.
-  - Understand how to use GROUP BY, ORDER BY, WHERE, and HAVING.
-  - Understand how to create and remove constraints, including CHECK constraints
-  - Be familiar with using subqueries
 
 ## PostgreSQL
 
