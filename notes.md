@@ -50,3 +50,68 @@ Referential Integrity
   Database normalization assists in reducing duplication, and maintaining integrity of data. The mechanism used to achieve normalization in a relational database includes distributing data among multiple tables and defining relationships between these tables. Normalization reduces the need to store the same data in more than one place, thus minimizing the risk of inconsistencies and update anomalies. 
   
   The relationships between tables are established through the use of primary and foreign keys. Primary keys are unique identifiers for a row of data in a table, while foreign keys typically reference a primary key of another table in order to form an association. Primary and foreign keys work together to support referential integrity between normalized data by ensuring that the data being referenced exists, and that the relationship remains consistent.  
+
+
+  natural keys: 
+
+  These are keys which uniquely identify a row of data in a relation by default, that is, by being unique identifiers *by nature* of the data they represent. 
+
+  Consider a table `homes`: 
+```sql
+CREATE TABLE homes (
+  address text UNIQUE NOT NULL CHECK --- (address = format(address))
+
+)
+
+
+```
+  The table is the house.
+
+  Mailbox: 
+    address_id: (address)
+
+    the id here is by *nature*, unique. It uniquely identifies a particular house within a larger geographic area. and most notably it is naturally associated with the house. Addresses lend themselves naturally to identify real estate. The address marks an area where the collection of attributes which comprise the house, exists. And even if all of the other attributes besides its address were the exact same as hundreds of other entries, we still can find our house by its address.  
+
+
+    - The row represents record of the house, and may identify its attributes in columns. 
+
+      - The address is the PRIMARY KEY in this case by the *nature* 
+
+      - These keys are naturals at uniquely identifying a row of data. 
+
+  
+  Natural keys are unique identifiers by nature of the data they represent. They are attributes of the entity itself, that happen to represent information uniquely qualified to identify a particular entity. 
+    - A social security number
+    - Student ID number
+    - Driver's License Number
+
+
+
+
+
+
+
+
+  Opposed to surrogate keys:
+
+  The term precludes a transfer of responsibility. We are shifting responsibility away from the entity, to the system, in uniquely identifying a record. These keys have no 'business connection' with the entity, and are therefore generated within set parameters by the SQL engine to create a non-natural identifier. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+  #### Visualizing for Memory
+- My house in Georgia. It's becoming fall and getting cooler. 
+- I'm standing by the mailbox, looking down the driveway. 
+- I notice the painted mailbox on my near left, the gravel parking space on my right.
+- I notice the grass creeping into on the broken concrete of the driveway
+- The house looks good. The bushes in front are growing. The spider looking grass is full. The windows are clean. There's a pumpkin on the porch. It smells like fire, faintly, the way fall smells when its a few weeks away. The sensation of cool air on the edges of my nostrils as I look from the street and I look left.  -->
