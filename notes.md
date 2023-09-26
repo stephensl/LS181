@@ -100,6 +100,28 @@ CREATE TABLE homes (
 
 
 
+Assigning Foreign Keys
+
+# During table creation
+
+## Inline
+
+## Explicit
+
+
+
+
+
+# When adding a column as foreign key to existing table
+
+## ALTER TABLE table_name 
+ADD COLUMN col_name REFERENCES other_table (other_col);
+
+
+# Targeted column already exists in table.
+
+## ALTER TABLE
+
 
 
 
