@@ -288,6 +288,13 @@
   ```
 
 #
+
+  #### Multiple `JOIN`s
+
+  Requirements of a query may necessitate the use of multiple `JOIN`s in order to combine data from multiple tables. In doing so, the 'transient table' becomes the 'left' table in the subsequent `JOIN`, and the table named in the `JOIN` statement acts as the 'right' table. After the final `JOIN`, the 'transient table' is then evaluated based on the columns in the `SELECT` list, and subject to further filtering if a `WHERE` or `HAVING` clause exists. 
+
+
+#
 #
 #
 

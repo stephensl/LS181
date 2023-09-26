@@ -1,64 +1,198 @@
--- 1. Adding a PRIMARY KEY Constraint
+--  id |  name   | age |       email
+-- ----+---------+-----+-------------------
+--   1 | Alice   |  20 |
+--   2 | Bob     |  21 | bob@email.com
+--   3 | Charlie |  22 | charlie@email.com
+--   4 | David   |     | david@email.com
+--   5 | Eva     |  24 |
+--   6 | Frank   |  25 | frank@email.com
+--  id |    name    | credits
+-- ----+------------+---------
+--   1 | Math       |       3
+--   2 | Science    |       4
+--   3 | History    |       3
+--   4 | Art        |       2
+--   5 | Philosophy |       3
+--  id | student_id | course_id | grade | semester
+-- ----+------------+-----------+-------+----------
+--   1 |          1 |         1 |    90 | Fall
+--   2 |          1 |         2 |    85 | Spring
+--   3 |          2 |         1 |    92 | Fall
+--   4 |          2 |         3 |    78 | Spring
+--   5 |          3 |         4 |    88 | Fall
+--   6 |          4 |         1 |    95 | Spring
+--   7 |          5 |         2 |    84 | Fall
+--   8 |          5 |         3 |    76 | Spring
+--   9 |            |         4 |       | Fall
+-- 1.
+SELECT
+  s.id,
+  s.name
+FROM
+  students s
+  JOIN enrollments e ON s.id = e.student_id
+  JOIN courses c ON e.course_id = c.id
+WHERE
+  c.name = 'Math';
 
--- Suppose you have a table students with columns id, name, and age. Write an SQL statement to add a PRIMARY KEY constraint to the id column.
+-- 2.
+SELECT
+  s.id,
+  s.name,
+  s.email
+FROM
+  students s
+WHERE
+  s.age IS NULL
+  AND s.email IS NOT NULL;
 
-ALTER TABLE students ADD PRIMARY KEY (id);
+-- 3.
+SELECT
+  c.name,
+  ROUND(AVG(e.grade)) AS "Course Average"
+FROM
+  courses c
+  INNER JOIN enrollments e ON e.course_id = c.id
+GROUP BY
+  c.name;
 
--- 2. Removing a PRIMARY KEY Constraint
+-- 4.
+SELECT
+  c.name
+FROM
+  courses c
+  LEFT OUTER JOIN enrollments e ON e.course_id = c.id
+WHERE
+  e.course_id IS NULL;
 
--- Write an SQL statement to remove the PRIMARY KEY constraint from the id column in the students table.
+-- 5.
+SELECT
+  s.name,
+  COUNT(e.course_id) AS credits
+FROM
+  students s
+  LEFT OUTER JOIN enrollments e ON e.student_id = s.id
+GROUP BY
+  s.name;
 
-ALTER TABLE students DROP CONSTRAINT id_pkey;
+-- 6.
+SELECT
+  s.name,
+  AVG(e.grade) AS cumulative_avg
+FROM
+  students s
+  INNER JOIN enrollments e ON s.id = e.student_id
+GROUP BY
+  s.name
+ORDER BY
+  cumulative_avg DESC
+LIMIT 1;
 
--- 3. Adding a FOREIGN KEY Constraint
+-- 7.
+SELECT
+  s.name
+FROM
+  students s
+  LEFT OUTER JOIN enrollments e ON s.id = e.student_id
+WHERE
+  e.student_id IS NULL;
 
--- You have a table orders with a column customer_id. Write an SQL statement to add a FOREIGN KEY constraint to customer_id that references a customers table with a PRIMARY KEY of id.
+-- 8.
+SELECT
+  s.name,
+  string_agg(c.name, ', ') AS "course_list"
+FROM
+  students s
+  JOIN enrollments e ON e.student_id = s.id
+  JOIN courses c ON e.course_id = c.id
+WHERE
+  c.name IN ('Math', 'Science')
+GROUP BY
+  s.name
+HAVING
+  COUNT(DISTINCT c.name) = 2;
 
+-- 9.
+SELECT
+  c.name,
+  ROUND(AVG(e.grade)) AS average
+FROM
+  courses c
+  INNER JOIN enrollments e ON c.id = e.course_id
+GROUP BY
+  c.name
+ORDER BY
+  average DESC
+LIMIT 1;
 
-ALTER TABLE orders ADD FOREIGN KEY (customer_id) REFERENCES customers (id);
+-- 10.
+SELECT
+  s.name
+FROM
+  students s
+  INNER JOIN enrollments e ON e.student_id = s.id
+WHERE
+  e.semester = 'Spring'
+  AND e.grade IS NULL;
 
+-- 11.
+SELECT
+  COUNT(DISTINCT s.id) "Number Enrolled",
+  c.name
+FROM
+  students s
+  INNER JOIN enrollments e ON e.student_id = s.id
+  RIGHT OUTER JOIN courses c ON c.id = e.course_id
+GROUP BY
+  c.name;
 
--- 4. Removing a FOREIGN KEY Constraint
+-- 12.
+SELECT
+  s.name,
+  s.age
+FROM
+  students s
+  INNER JOIN enrollments e ON s.id = e.student_id
+  INNER JOIN courses c ON c.id = e.course_id
+WHERE
+  c.name = 'History'
+  AND s.age > 21;
 
--- Write an SQL statement to remove the FOREIGN KEY constraint from the customer_id column in the orders table.
+-- 13.
+SELECT
+  e.semester,
+  COUNT(student_id) AS "Number Enrolled"
+FROM
+  enrollments e
+GROUP BY
+  e.semester
+ORDER BY
+  "Number Enrolled" DESC
+LIMIT 1;
 
-ALTER TABLE orders DROP CONSTRAINT customer_id_fkey;
+-- 14.
+SELECT
+  s.name
+FROM
+  students s
+  INNER JOIN enrollments e ON e.student_id = s.id
+  INNER JOIN courses c ON c.id = e.course_id
+WHERE
+  c.credits = 4;
 
--- 5. Adding a UNIQUE Constraint
+-- 15.
+SELECT
+  c.name,
+  COUNT(e.student_id) AS "Num of 21s"
+FROM
+  courses c
+  INNER JOIN enrollments e ON e.course_id = c.id
+  INNER JOIN students s ON s.id = e.student_id
+WHERE
+  s.age = 21
+GROUP BY
+  c.name
+ORDER BY
+  "Num of 21s" DESC
+LIMIT 1;
 
--- You have a table employees with a column email. Write an SQL statement to ensure that the email addresses are unique across all employees.
-
-ALTER TABLE employees ADD UNIQUE (email);
-
--- 6. Removing a UNIQUE Constraint
-
-
-
--- Write an SQL statement to remove the UNIQUE constraint from the email column in the employees table.
-
-ALTER TABLE employees DROP CONSTRAINT uniq_email;
-
--- 7. Adding a NOT NULL Constraint
-
--- You have a table books with a column title. Write an SQL statement to ensure that the title column cannot have NULL values.
-
-ALTER TABLE books ALTER COLUMN title SET NOT NULL;
--- 8. Adding a CHECK Constraint
-
--- You have a table products with a column price. Write an SQL statement to ensure that the price is always greater than 0.
-
-ALTER TABLE products ADD CHECK (price > 0);
-
--- 9. Adding a DEFAULT Constraint
-
--- You have a table tasks with a column status. Write an SQL statement to set the default value of the status column to 'Pending'.
-
-ALTER TABLE tasks ALTER COLUMN status SET DEFAULT 'pending';
-
--- 10. Tricky Question: Multiple Constraints
-
--- You have a table inventory with columns item_id and quantity. Write an SQL statement to add both a PRIMARY KEY constraint to item_id and a CHECK constraint to quantity to ensure it is never negative.
-
-ALTER TABLE inventory 
-  ADD PRIMARY KEY (item_id),
-  ADD CHECK (quantity >= 0);
