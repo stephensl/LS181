@@ -7,10 +7,84 @@
   SQL is a special purpose language used to interact with relational databases. 
     - Declarative syntax
       - describes what should be done, but hides implementation details
-      - contrast with imperative types
-  
-  SQL Statements
+      - contrast with imperative language types (Ruby, JS, Python, etc.)
 
+  #### Syntax Components
+
+  We interact with a relational database through issuing SQL Statements which describe the data we would like to access. SQL statements are comprised of keywords and subjective identifiers that enable us to define, access, and modify data in a database. 
+
+  SQL Commands: 
+    - these keywords allow for describing the desired operation. 
+    - `SELECT`, `UPDATE`, `ALTER TABLE`, `ALTER COLUMN`, `UPDATE`, `DROP`, `DELETE`
+  SQL Clauses: 
+    - allow for filtering or further refining desired data.
+    - `FROM`, `WHERE`, `GROUP BY`, `HAVING`, `JOIN`, `ORDER BY`, `USING`
+  SQL Expressions: 
+    - allow for evaluation
+    - conditional operators: `<`, `>`, `<=`, `>=`, `=`, `<>`, `!=`
+    - logical operators: `AND`, `OR`, `NOT`
+    - arithmetic operators: `+`, `-`, `*`, `/`, `%`
+    - string operators: `||`, `LIKE`, `ILIKE`, `NOT LIKE`, `%`, `_`
+    - special operators: `IN`, `BETWEEN`, `IS NULL`, `IS NOT NULL`, `DISTINCT`, `ALL`, `ANY`, `EXISTS`
+  SQL Identifiers: 
+    - these are the names of the tables, columns, or other objects in the database. 
+
+  ##### Example Syntax Components
+
+  ```sql
+  SELECT name, age 
+    FROM customers WHERE age > 18
+    ORDER BY age;
+  ```
+  In the above SQL statement: 
+    - `SELECT` is a command
+    - `name` and `age` are column identifiers
+    - `FROM` is a clause indicating the required table
+    - `customers` is a table identifier
+    - `WHERE` is a clause 
+    - `age > 18` is a conditional expression
+    - `ORDER BY` is a clause indicating sorting of result set
+
+#
+
+  ### How PostgreSQL Executes a Query
+
+  *This example is based on a `SELECT` query. We use the example of a storage shed of boxes containing different items. The boxes themselves represent the tables. The items within the boxes represent the data stored in the table.* 
+
+  1. Gather all the rows from tables referenced in the query
+    - includes rows from tables in the `FROM` clause, and any `JOIN`ed tables.
+    - this is roughly equivalent to gathering the required 'boxes'.
+
+  2. Filter rows using `WHERE` conditions
+    - evaluate each row based on the `WHERE` clause(s)
+    - remove rows that do not meet the requirement
+    - equivalent to opening each box, and checking to see if the item meets a requirement. 
+      - "I am looking for pictures `WHERE` the photo was taken prior to a particular date."
+
+  3. Rows may be divided into groups
+    - If a `GROUP BY` clause exists, rows containing identical values for particular columns identified in the `GROUP BY` clause are combined into a single row. 
+    - equivalent to stacking pictures of a particular person in a single stack. 
+
+  4. Filter groups using `HAVING` conditions
+    - `HAVING` conditions may further filter grouped data
+    - `GROUP BY` and aggregate functions both group data, we use `HAVING` clause to refine these groups.
+    - equivalent to looking through a grouped stack of pictures taken on a particular date and removing pictures that also include other people or some other condition. 
+  
+  5. Use `SELECT` list to compute values for results
+    - Each element referenced in the `SELECT` list, including any functions, are associated with their column name, or last function evaluated. (unless alias provided)
+    - photos of each individual person are listed under a column like `name` for example. 
+
+  6. Sort the results
+    - Results are sorted as specified in `ORDER BY` clause.
+    - equivalent to sorting pictures based on exact time of day taken, earlier vs later. 
+    
+  7. Limit results
+    - `LIMIT` or `OFFSET` may be used to adjust which results to include in the final set.
+    - equivalent to keeping the earliest 3 photos of each person.
+
+#
+#
+#
 
   ### Identify the different types of `JOIN`s and explain their differences.
 
@@ -86,7 +160,7 @@
 
   The `LEFT OUTER JOIN` will combine two tables based on join condition, but differs from `INNER JOIN` in that all of the rows from the first table (left) will be included in the result set regardless of whether the condition is satisfied for that row.
 
-  We utilize `LEFT OUTER JOIN` when we want to include in the result set all of the rows in the first table, while only including rows from the second table that meet the condition. Consequently, the omitted data from the second table will contain `NULL` values in their respective column positions.
+  We utilize `LEFT OUTER JOIN` when we want to include in the result set all of the rows in the first table, while only including rows from the second table that meet the condition. Consequently, the omitted data from the second table will contain `NULL` values in their respective column positions within the row.
 
   ##### Example: 
   
@@ -365,6 +439,8 @@
 
   #### `INSERT`
 
+  `INSERT` a DML command that allows 
+
   General syntax: 
   
   ```sql
@@ -378,6 +454,8 @@
   INSERT INTO employees (name, age, salary)
     VALUES ('Max', 45, 90000);
   ```
+
+
 
 #
 
@@ -702,4 +780,15 @@ SELECT NULL IS NULL;
 
 -- t
 ```
+
+#
+#
+
+## Schema to limit values
+
+### List three ways to use the schema to restrict what values can be stored in a column.
+
+  - Data type (which can include a length limitation)
+  - NOT NULL Constraint
+  - Check Constraint
 
