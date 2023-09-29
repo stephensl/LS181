@@ -1,0 +1,230 @@
+-- --- Each customer can have any number of services.
+-- --- Each service may have any number of customers
+-- --- Create database: billing
+-- --- Create table: customers
+-- --- Create table: services
+-- CREATE TABLE customers(
+--   id serial PRIMARY KEY,
+--   name text NOT NULL,
+--   payment_token char(8) NOT NULL CHECK (payment_token ~ '^[A-Z]{8}$')
+-- );
+-- CREATE TABLE services(
+--   id serial PRIMARY KEY,
+--   description text NOT NULL,
+--   price numeric(10, 2) NOT NULL CHECK (price >= 0.00)
+-- );
+-- INSERT INTO customers(name, payment_token)
+--   VALUES ('Pat Johnson', 'XHGOAHEQ'),
+-- ('Nancy Monreal', 'JKWQPJKL'),
+-- ('Lynn Blake', 'KLZXWEEE'),
+-- ('Chen Ke-Hua', 'KWETYCVX'),
+-- ('Scott Lakso', 'UUEAPQPS'),
+-- ('Jim Pornot', 'XKJEYAZA');
+-- INSERT INTO services(description, price)
+--   VALUES ('Unix Hosting', 5.95),
+-- ('DNS', 4.95),
+-- ('Whois Registration', 1.95),
+-- ('High Bandwidth', 15.00),
+-- ('Business Support', 250.00),
+-- ('Dedicated Hosting', 50.00),
+-- ('Bulk Email', 250.00),
+-- ('One-to-one Training', 999.00);
+-- CREATE TABLE customers_services(
+--   id serial PRIMARY KEY,
+--   customer_id integer REFERENCES customers(id) ON DELETE CASCADE NOT NULL,
+--   service_id integer REFERENCES services(id) NOT NULL,
+--   UNIQUE (customer_id, service_id)
+-- );
+-- INSERT INTO customers_services(customer_id, service_id)
+--   VALUES (1, 1),
+-- (1, 2),
+-- (1, 3),
+-- (3, 1),
+-- (3, 2),
+-- (3, 3),
+-- (3, 4),
+-- (3, 5),
+-- (4, 1),
+-- (4, 4),
+-- (5, 1),
+-- (5, 2),
+-- (5, 6),
+-- (6, 1),
+-- (6, 6),
+-- (6, 7);
+--- retrieve customer data.
+--- for each customer who currently subscribes to at least one service.
+--- where is this subscription evident?
+--- in the customers_services table, we have customers, identified by customer_id and each customer id that is paired with a service id is a currently subscribed customer.
+--- So, if the customer's id is in the customers_services table, they subscribe to one or more services because otherwise, they would not be in the join table. service_id cannot be a null value. so it must hold the service_id of the service to which the customer is subscribed. We do not have the danger of a customer_id holding a valid value, and service_id holding a non-valid value.
+--- So, we need information from the customers table - id, name, payment_token
+--- and we need the customers_services table, to check which customers are present there.
+--- we use an inner join, because we only want rows that match the condition of customers.id = customers_services.customer_id
+--- if the customers.id column does not match a value in customers_services.customer_id then it is not included in the result set.
+-- SELECT
+--   customers.*
+-- FROM
+--   customers
+--   INNER JOIN customers_services ON customers.id = customers_services.customer_id;
+--- This query gives us the following result set because it joined all rows that had a matching customers.id and customer_id value. some customers have more than one service, thus they appear multiple times in the join table. in order to find the data we need, we use DISTINCT to further filter the data to unique values.
+--  id |    name     | payment_token
+-- ----+-------------+---------------
+--   1 | Pat Johnson | XHGOAHEQ
+--   1 | Pat Johnson | XHGOAHEQ
+--   1 | Pat Johnson | XHGOAHEQ
+--   3 | Lynn Blake  | KLZXWEEE
+--   3 | Lynn Blake  | KLZXWEEE
+--   3 | Lynn Blake  | KLZXWEEE
+--   3 | Lynn Blake  | KLZXWEEE
+--   3 | Lynn Blake  | KLZXWEEE
+--   4 | Chen Ke-Hua | KWETYCVX
+--   4 | Chen Ke-Hua | KWETYCVX
+--   5 | Scott Lakso | UUEAPQPS
+--   5 | Scott Lakso | UUEAPQPS
+--   5 | Scott Lakso | UUEAPQPS
+--   6 | Jim Pornot  | XKJEYAZA
+--   6 | Jim Pornot  | XKJEYAZA
+--   6 | Jim Pornot  | XKJEYAZA
+-- (16 rows)
+-- SELECT DISTINCT
+--   customers.*
+-- FROM
+--   customers
+--   INNER JOIN customers_services ON customers.id = customers_services.customer_id;
+--- Alternatively, using subquery
+-- SELECT DISTINCT
+--   customers.*
+-- FROM
+--   customers
+-- WHERE
+--   customers.id IN ( SELECT DISTINCT
+--       customer_id
+--     FROM
+--       customers_services);
+-- SELECT DISTINCT
+--   customers.*
+-- FROM
+--   customers
+-- WHERE
+--   EXISTS (
+--     SELECT
+--       1
+--     FROM
+--       customers_services
+--     WHERE
+--       customers.id = customers_services.customer_id);
+--- customers with no services
+---Not in the customers_services table, but in the customers table.
+--- First, we'll use a LEFT OUTER JOIN to include all customer names, and we'll filter out all rows that have service_ids that are NOT NULL. We want the customer data from the row in the 'transient' table that has a NULL value for service_id.
+-- SELECT
+--   customers.*
+-- FROM
+--   customers
+--   LEFT OUTER JOIN customers_services ON customers.id = customers_services.customer_id
+-- WHERE
+--   customers_services.service_id IS NULL; ---  Planning Time: 0.075 ms, Execution Time: 0.049 ms
+-- --- Now using subqueries
+-- SELECT
+--   customers.*
+-- FROM
+--   customers
+-- WHERE
+--   customers.id NOT IN (
+--     SELECT
+--       customer_id
+--     FROM
+--       customers_services); ---  Planning Time: 0.075 ms, Execution Time: 0.049 ms
+-- --- Another subquery
+-- EXPLAIN ANALYZE SELECT customers.* FROM customers
+-- WHERE NOT EXISTS (
+--   SELECT 1 FROM customers_services
+--   WHERE customers.id = customers_services.customer_id
+-- ); ---  Planning Time: 0.119 ms, Execution Time: 0.042 ms
+-- SELECT customers.*, services.*
+-- FROM customers
+--   LEFT OUTER JOIN customers_services ON customers.id = customers_services.customer_id
+--   FULL OUTER JOIN services ON services.id = customers_services.service_id
+-- WHERE
+--   service_id IS NULL OR customer_id IS NULL;
+--- services with no customers using RIGHT OUTER JOIN
+-- SELECT
+--   services.description
+-- FROM
+--   customers_services
+--   RIGHT OUTER JOIN services ON customers_services.service_id = services.id
+-- WHERE
+--   customers_services.service_id IS NULL;
+-- ---Subquery
+-- SELECT services.description FROM services
+-- WHERE services.id NOT IN (
+--   SELECT service_id FROM customers_services
+-- );
+-- SELECT services.description FROM services
+-- WHERE NOT EXISTS (
+--   SELECT 1 FROM customers_services
+--   WHERE customers_services.service_id = services.id
+-- );
+-- SELECT
+--   c.name,
+--   string_agg(s.description, ', ') AS services
+-- FROM
+--   customers c
+--   LEFT OUTER JOIN customers_services cs ON c.id = cs.customer_id
+--   LEFT OUTER JOIN services s ON cs.service_id = s.id
+-- GROUP BY
+--   c.name;
+--- every service that is subscribed by at least 3 customers
+--- need to count the service_ids in the customers_services table.. if service id appears 3 or more times, that service should be included in the result.
+-- SELECT
+--   s.description,
+--   COUNT(cs.service_id)
+-- FROM
+--   services s
+--   INNER JOIN customers_services cs ON s.id = cs.service_id
+-- GROUP BY
+--   s.description
+-- HAVING
+--   COUNT(cs.service_id) >= 3;
+--- Total gross income;
+--- we need sum of  (price of each subscribed service * count of how many customers are subscribed to it).
+-- price from services
+-- number of service_ids corresponding to that service
+-- We multiply these values for each unique service. and sum the products.
+-- First lets see all the customers, with their individual subscriptions and respective prices.
+-- SELECT
+--   SUM(s.price) AS gross
+-- FROM
+--   services s
+--   INNER JOIN customers_services cs ON cs.service_id = s.id;
+
+-- INSERT INTO customers (name, payment_token)
+-- VALUES ('John Doe', 'EYODHLCN');
+
+-- INSERT INTO customers_services (customer_id, service_id)
+-- VALUES (7, 1), (7, 2), (7, 3);
+
+
+--- Amount expected from services where price > 100
+
+--- sum price of all services currently subscribed to that are more than $100. 
+
+
+SELECT SUM(s.price) FROM services s
+INNER JOIN customers_services cs ON s.id = cs.service_id
+WHERE s.price > 100;
+
+
+--- max income if all customers selected all these services. 
+
+--- Find all services costing more than $100.
+
+--- Sum their values
+
+--- count how many customers there are
+  --- multiply the summed value by number of customers
+
+
+SELECT SUM(price)
+FROM customers 
+CROSS JOIN services 
+WHERE price > 100;
