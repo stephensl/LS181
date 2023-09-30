@@ -656,6 +656,8 @@
 
  #### Constraints
 
+ Constraints are an integral part of database schema, and enforce limits on the types of data that can be stored in a database, and how it should be structured. Constraints ensure data integrity, as data must conform to a defined set of rules, and deviation from these constraints disqualifies data from entering the database. Constraints effectively 'screen' data, to ensure that it is consistent, and accurately represents the entity being modeled. 
+
  ##### Description:
 
  While data types serve as one level of constraint limiting the data that may exist in a relation, there are numerous additional constraints to offer more precise control and protect data integrity. These constraints also allow for data to be constrained in relation to other data present in the table. Generally, constraints create eligibility requirements that prospective data must meet in order to be stored. 
@@ -664,27 +666,326 @@
 
   ###### `PRIMARY KEY`
   
-  A `PRIMARY KEY` is a unique identifier for a particular row of data.  
+  A `PRIMARY KEY` is a unique identifier for a particular row of data in a table. A table may have only one `PRIMARY KEY`, and enforces `NOT NULL` and `UNIQUE` constraints by default. In order to establish consistent relationships between tables, we must be able to uniquely identify rows containing particular data. `PRIMARY KEYS` are often utilized in conjunction with `FOREIGN KEYS` to associate a row in one table, with a row in another table. These keys effectively enable data to become 'relational'.
+
+  ###### Syntax Options: Defining `PRIMARY KEY`
+
+  - Defining `PRIMARY KEY` within `CREATE TABLE` statement. 
+    
+    - Inline: 
+
+      ```sql
+      CREATE TABLE users (
+        id serial PRIMARY KEY, 
+        name text, 
+        age integer
+      );
+      ``` 
+
+    - Explicit: 
+
+      ```sql
+      CREATE TABLE users (
+        id serial, 
+        name text, 
+        age integer, 
+        PRIMARY KEY (id)
+      );
+      ``` 
+    
+  - Defining `PRIMARY KEY` in existing table, using `ALTER TABLE`
+
+    ```sql
+    ALTER TABLE users
+      ADD PRIMARY KEY (id);
+    ```
+  
+  - Dropping `PRIMARY KEY` from table
+
+    ```sql
+    ALTER TABLE users
+      DROP CONSTRAINT users_pkey;
+    ```
 
   ##### `FOREIGN KEY`
 
-  A `FOREIGN KEY` is utilized in order to create a relationship between two records, typically by referencing a row's `PRIMARY KEY` in another table. 
+  A `FOREIGN KEY` is utilized in order to create a relationship between two records, typically by referencing a row's `PRIMARY KEY` in another table. When defining a `FOREIGN KEY` we utilize the `REFERENCES` keyword, followed by the name of the table, and column being referenced in the association. `FOREIGN KEYS` are vital in ensuring referential integrity between tables. Referential integrity ensures that the data being referenced actually exists, and the relationship remains consistent by enforcing the boundaries of the association as a one-to-one, one-to-many, or many-to-many relationship. 
+
+
+  ###### Syntax Options: 
+
+    - Defining `FOREIGN KEY` within `CREATE TABLE` statement
+      
+      - Inline:
+
+        ```sql
+        CREATE TABLE pets (
+          id serial PRIMARY KEY, 
+          name text, 
+          owner_id integer REFERENCES owners (id)
+        );
+        ```
+      
+      - Explicit: 
+
+        ```sql
+        CREATE TABLE pets (
+          id serial, 
+          name text, 
+          owner_id integer, 
+          PRIMARY KEY (id), 
+          FOREIGN KEY (owner_id) REFERENCES owners (id)
+        );
+        ```
+
+    - Defining `FOREIGN KEY` using `ALTER TABLE`
+
+      - With `ADD CONSTRAINT` allows for custom naming
+
+        ```sql
+        ALTER TABLE pets
+          ADD CONSTRAINT owner_id_owners_id_fkey
+          FOREIGN KEY (owner_id) REFERENCES owners (id);
+        ```
+
+      - Without `ADD CONSTRAINT` utilizes SQL engine generated name
+
+        ```sql
+        ALTER TABLE pets 
+          ADD FOREIGN KEY (owner_id) REFERENCES owners (id);
+        ```
+
+    - Dropping `FOREIGN KEY` from table
+
+      ```sql
+      ALTER TABLE pets 
+        DROP CONSTRAINT owner_id_owners_id_fkey;
+      ```
 
   ###### `UNIQUE`
 
   A `UNIQUE` constraint ensures that each value stored in the column subject to the constraint is unique, and ensures no duplication of values.
 
-  ###### `CHECK`
+  ###### When to use `UNIQUE` and when NOT to use it. 
 
-  A `CHECK` constraint is used to apply a conditional expression to data in a particular column to ensure that the data is valid. 
+    - `PRIMARY` keys enforce `UNIQUE` constraint by default.
+    
+    - `FOREIGN` keys in one-to-one relationships in order to preserve referential integrity
+      - the nature of a one-to-one relationship means that an entity in one table can only be associated with one particular entity in another table, and vice versa. 
+        - example: A car has a unique VIN number, this VIN number is only associated with one particular vehicle. 
+    
+    - Join tables in many-to-many relationships often have a `UNIQUE` constraint on combinations of `FOREIGN KEYS` represented in the table.
+      - a join table associates entities in a many-to-many relationship by referencing the `PRIMARY KEY`s of each entity as `FOREIGN KEY`s in the join table. Each row represents an instance of the many-to-many relationship
+        - example: A doctor has many patients, and a patient may have many doctors. In the join table, each row would include a `FOREIGN KEY` referencing a doctor, paired with a `FOREIGN KEY` referencing a patient in their respective tables. `UNIQUE` constraints are utilized to guard against duplication of the relationship in the join table.
+    
+    - `UNIQUE` constraints should NOT be applied to the `FOREIGN KEY` column on the 'many' side of a one-to-many relationship. 
+      - a one to many relationship means that one entity instance may be associated with any number of entity instances in another table. If we were to apply a `UNIQUE` constraint on the 'many' side of the relationship, this would violate referential integrity of the association being modeled. 
+        - example: A person has one date of birth, but this date of birth is associated with numerous other people. If date of birth were a `FOREIGN KEY` and we utilized a `UNIQUE` constraint, we would effectively be creating a invalid one-to-one relationship. 
+    
 
-  ###### `NOT NULL`
+  ###### Syntax Options: 
 
-  The `NOT NULL` constraint restricts the subjected column from holding any `NULL` values.
+    - Including `UNIQUE` constraint in `CREATE TABLE` statement
 
-  ###### `DEFAULT`
+      - Inline: 
+      
+        ```sql
+        CREATE TABLE fish (
+          id serial PRIMARY KEY, 
+          name varchar(50) UNIQUE,
+          lifespan integer 
+        );
+        ```
 
-  The `DEFAULT` constraint will automatically insert a default value for rows in the subjected column when no other value is provided. 
+      - Explicit: 
+
+        ```sql
+        CREATE TABLE fish (
+          id serial PRIMARY KEY, 
+          name varchar(50), 
+          lifespan integer, 
+          UNIQUE (name)
+        );
+        ```
+
+    - Adding `UNIQUE` constraint to existing table
+
+      - Using `ALTER TABLE` and `ADD CONSTRAINT` to add custom constraint name
+
+        ```sql
+        ALTER TABLE fish
+          ADD CONSTRAINT fish_unique_name
+          UNIQUE (name);
+        ```
+
+      - Using `ALTER TABLE` and `ADD UNIQUE` to utilize SQL engine generated constraint name
+
+        ```sql
+        ALTER TABLE fish 
+          ADD UNIQUE (name);
+        ```
+    
+    - Dropping `UNIQUE` constraint
+
+      ```sql
+      ALTER TABLE 
+        DROP CONSTRAINT fish_unique_name;
+      ```
+
+  ##### `CHECK`
+
+  A `CHECK` constraint is used to apply a conditional expression to data in a particular column to ensure that the data is valid. The conditional expression in a `CHECK` constraint will evaluate to a boolean value, or `NULL` if either side of the conditional operator is `NULL`.
+
+  ###### Syntax Options: 
+
+    - Use within `CREATE TABLE` statement
+
+      - Inline
+
+        ```sql
+        CREATE TABLE surfers (
+          id serial PRIMARY KEY, 
+          name varchar(50), 
+          age integer CHECK (age BETWEEN 18 AND 100)
+        );
+        ```
+      
+      - Explicit:
+        
+        ```sql
+        CREATE TABLE surfers (
+          id serial PRIMARY KEY, 
+          name varchar(50), 
+          age integer, 
+          CHECK (age BETWEEN 18 AND 100)
+        );
+        ```
+
+    - Add `CHECK` to column in existing table
+
+      - Using `ALTER TABLE` and `ADD CONSTRAINT` to use custom name
+
+        ```sql
+        ALTER TABLE surfers
+          ADD CONSTRAINT check_surfer_age
+          CHECK (age BETWEEN 18 AND 100);
+        ```
+
+      - Using `ALTER TABLE` and `ADD CHECK` to use SQL engine generated name:
+
+        ```sql
+        ALTER TABLE surfers
+          ADD CHECK (age BETWEEN 18 AND 100);
+        ```
+    
+    - Dropping `CHECK` constraint:
+
+    ```sql
+    ALTER TABLE surfers 
+      DROP CONSTRAINT check_surfer_age;
+    ```
+
+  ##### `NOT NULL`
+
+  The `NOT NULL` constraint restricts the subjected column from holding any `NULL` values. This constraint is utilized when we want to guarantee that a particular column holds a value. 
+
+  ###### When to use `NOT NULL` and when NOT to use it
+
+    - `PRIMARY KEY`s enforce `NOT NULL` constraint by default
+
+    - `FOREIGN KEY`s in one-to-many, and many-to-many relationships
+      - example: one-to-many: person and date of birth
+      - example: many-to-many: does not make sense in join tables as they exist to tie together entities from other tables. If the join table contains a `NULL` value as a `FOREIGN KEY` for one of the members in the modeled relationship, there is no relationship. 
+
+    - The use of `NOT NULL` constraints often is tied directly to the business logic, and the relationships between data in associated tables. 
+
+  
+  ###### Syntax Options: 
+  
+    - Within `CREATE TABLE` statement:
+
+      - Inline: 
+      
+        ```sql
+        CREATE TABLE students (
+          id serial PRIMARY KEY, 
+          name varchar(50) NOT NULL, 
+          dob date NOT NULL
+        );
+        ```
+
+      - Explicit: `CONSTRAINT` allowing for custom name, with `CHECK`
+
+        ```sql
+        CREATE TABLE students (
+          id serial PRIMARY KEY, 
+          name varchar(50), 
+          dob date, 
+          CONSTRAINT name_not_null CHECK (name IS NOT NULL), 
+          CONSTRAINT dob_not_null CHECK (dob IS NOT NULL)
+        );
+        ```
+
+    - Add `NOT NULL` constraint to existing table: 
+
+      - Using `ALTER TABLE`, `ALTER COLUMN`, `SET`
+
+        ```sql
+        ALTER TABLE students
+          ALTER COLUMN name SET NOT NULL,
+          ALTER COLUMN dob SET NOT NULL;
+        ```
+
+    - Drop `NOT NULL` constraint
+
+      ```sql
+      ALTER TABLE students
+        ALTER COLUMN name DROP NOT NULL, 
+        ALTER COLUMN dob DROP NOT NULL;
+      ```
+
+  ##### `DEFAULT`
+
+  The `DEFAULT` constraint will automatically insert a default value for rows in the subjected column when no other value is provided.
+
+  ###### When to use `DEFAULT` constraints and when NOT to
+
+    - Warranted by nature of column data
+      - examples: 
+        - `created_at` column includes default timestamp
+        - `serial` includes default auto-incrementing value
+        - `status` set to inactive until activated, vice versa
+    - In order to avoid `NULL` values in calculations by defaulting to a safe value
+    
+  
+  ###### Syntax Options: 
+    
+    - Within `CREATE TABLE` statement:
+
+        ```sql
+        CREATE TABLE orders (
+          id serial PRIMARY KEY, 
+          status varchar(50) DEFAULT 'Pending', 
+          created_at timestamp DEFAULT CURRENT_TIMESTAMP
+        );
+        ```
+
+    - Adding `DEFAULT` to existing column in table. 
+
+      ```sql
+      ALTER TABLE orders
+        ALTER COLUMN status SET DEFAULT 'Pending';
+      ```
+
+    - Dropping `DEFAULT` constraint
+
+      ```sql
+      ALTER TABLE orders 
+        ALTER COLUMN status DROP DEFAULT;
+      ```
+
+
+
 
 #
 #

@@ -222,9 +222,3 @@ WHERE s.price > 100;
 
 --- count how many customers there are
   --- multiply the summed value by number of customers
-
-
-SELECT SUM(price)
-FROM customers 
-CROSS JOIN services 
-WHERE price > 100;
