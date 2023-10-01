@@ -10,22 +10,22 @@ CREATE TABLE students (
 CREATE TABLE classes (
 	id serial PRIMARY KEY,
 	name text,
-	student_id int FOREIGN KEY REFERENCES students (id)
+	student_id int REFERENCES students (id)
 );
 
 INSERT INTO students (name) VALUES ('Johny'), ('Edd');
-INSERT INTO classes (name, student_d) 
-	VALUES ('Math', 1), ('Art', NULL), ('Geography', 1));
+INSERT INTO classes (name, student_id) 
+	VALUES ('Math', 1), ('Art', NULL), ('Geography', 1);
 ```
 
-
+This code will not result in an error because there is not an existing `NOT NULL` constraint on the `student_id` column. In this case, `students` and `classes` models a one-to-many relationship as one student may take many classes. It is true that a class may have many students as well, suggesting a many-to-many relationship, but since we are dealing with only two tables here- the absence of a join table necessary in modeling a many to many relationship is telling. The modality of the relationship between students and classes is 0 on both sides in this case since student_id accepts `NULL` values. This means a student can exist without being in a class, and a class can exists without any students assigned to it. 
 
 
 
 #
 #
 
-2. Consider the code below. How are relations, tuples, attributes, and entities represented in the example below? 
+2. Consider the code below. How are relations, rows, attributes, and entities represented in the example below? 
 
 ```sql
 CREATE TABLE teachers (
@@ -36,7 +36,7 @@ CREATE TABLE teachers (
 CREATE TABLE classes (
 	id serial PRIMARY KEY,
 	name text,
-	teacher_id int REFERENCES teaachers (id) 
+	teacher_id int REFERENCES teachers (id) 
 		ON DELETE CASCADE
 );
 
@@ -44,6 +44,9 @@ INSERT INTO teachers (name) VALUES ('Marry Bee');
 INSERT INTO classes (name, teacher_id) VALUES ('Math', 1);
 ```
 
+The relations represented are `teachers` and `classes`. 
+
+Rows within each relation would indicate a single entity instance of either a teacher or a class. These entity instances have attributes that correspond to the names of columns in the relation (`id`, `name`, `teacher_id`). 
 
 
 
@@ -66,6 +69,7 @@ CREATE TABLE classes (
 );
 ```
 
+A relation is represented as a table. Here we have two relations, `teachers` and `classes`. The relationship between them has a cardinality of one to many and a modality of zero on the one side, and zero on the many side. 
 
 
 #
