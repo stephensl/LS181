@@ -282,7 +282,16 @@ When would PostgreSQL throw this error and why? Explain the information that thi
 
 14. Create a table `teachers` with a column called `set_up_date` and set it to `text`. Change the data type in that column to a `date` data type.
 
+```sql
+CREATE TABLE teachers (
+  id serial PRIMARY KEY, 
+  set_up_date text
+);
 
+ALTER TABLE teachers 
+ALTER COLUMN set_up_date
+  TYPE date USING set_up_date::date; 
+```
 
 
 
@@ -351,7 +360,7 @@ WHERE id < 2;
 
 What type of statement is this code presenting? Explain all components of this statement. 
 
-
+This is a SQL Query. Utilizing a `SELECT` command, and 
 
 
 
