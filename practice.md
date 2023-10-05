@@ -86,10 +86,16 @@ CREATE TABLE teachers (
 CREATE TABLE classes (
 	id serial PRIMARY KEY,
 	name text,
-	teacher_id int REFERENCES teaachers (id) 
+	teacher_id int REFERENCES teachers (id) 
 		ON DELETE CASCADE
 );
 ```
+
+Constraints are used to enforce rules and limitations around the data that is stored in a database. Keys serve as unique identifiers for particular records and allow us to create referential associations between data. Both constraints and keys benefit data integrity by ensuring that data is properly validated when it enters the database, and references to data among multiple tables remain consistent and accurate. 
+
+In the example above, the `teachers` table contains an `id` column which has a `PRIMARY KEY` constraint. This `PRIMARY KEY` uniquely identifies each record in the table, and by default, ensures that its values are `NOT NULL` and `UNIQUE`. These constraints ensure that each individual record will maintain a unique identifier. 
+
+In the classes table, we also have an `id` column which serves as the `PRIMARY KEY` for the table, but most notably, the table containts a `teacher_id` column and utilizes the `REFERENCES` keyword to associate the `teacher_id` column in the `classes` table and the `id` column in the `teachers` table. Thus, `teacher_id` is a `FOREIGN KEY`, referencing the `PRIMARY KEY` in another table. Utilizing `PRIMARY KEY`s and `FOREIGN KEY`s to associate data among multiple tables protects referential integrity between the two tables. The `ON DELETE CASCADE` clause applied to `teacher_id` further protects referential integrity, as when a record from the `teachers` table, which references a record in the `classes` table is deleted, the associated record in the `classes` table will be automatically removed as will. This ensures that references remain valid, and we do not orphan any data by removing only one side of the relationship. 
 
 
 
@@ -107,8 +113,15 @@ SELECT teachers.name,
 					ORDER BY COUNT(classes.id);
 ```
 
+1. The query will start by gathering rows from tables included in the `FROM` clause and any `JOIN` clauses. In this case, all rows from the `teachers` table and the `classes` table will included. 
 
+2. Next, the `ON` clause is evaluated and rows that meet the condition, namely that the value in teachers.id is equal to the value in teacher_id are joined together in a 'transient' table. 
 
+3. The `GROUP BY` clause is evaluated and rows containing the same value for `teachers.name` will be grouped together. The remaining data in the grouped rows is then subject to aggregation or further grouping. 
+
+4. The `SELECT` list is evaluated and values from the grouped data is selected- the `name` column of the `teachers` table. 
+
+5. The selected data is sorted by the evaluated result of the aggregate function `COUNT(classes.id)` which will return the count of `id`s from the `classes` table that are associated with each teacher. The result set will be sorted in ascending order, with the teacher who has the smallest number of classes appearing first. 
 
 
 #
@@ -124,7 +137,13 @@ CREATE TABLE example (
 	age numeric NOT NULL
 );
 ```
+- serial is a data type that creates a sequence object which automatically-increments when a record is inserted that does not already include a value for that column. This is often used along with `PRIMARY KEY` constraint to uniquely identify records. 
 
+- varachar(200) this is a text data type that allows for variable text up to a maximum of 200 characters. 
+
+- char(100) is a text data type, that allows for a maximum of 100 characters, but any text less than 100 characters in length will be automatically lengthened up to 100 characters using spaces. Thus, each entry in columns subject to this data type will be the same length. 
+
+- numeric allows for any number to be entered. may be integer, decimal, etc. 
 
 
 #
@@ -142,8 +161,9 @@ INSERT INTO example (some_num) VALUES (1);
 
 Will this code raise an error? Why or why not?
 
+This will not raise an error, as it fits within the constraints of the data type. `numeric(10, 2)` specifies that the column can store numbers up to 10 digits in length, two of which may be following the decimal point. 
 
-
+When the value `1` is inserted, it will be stored as `1.00` which meets these requirements. 
 
 #
 #
@@ -153,7 +173,7 @@ Will this code raise an error? Why or why not?
 ```sql
 CREATE TABLE example(
 	some_num int,
-	some_text text CHECK (some_text > 0)
+	some_text text CHECK (length(some_text) > 0)
 );
 
 INSERT INTO example (some_num)
@@ -162,7 +182,7 @@ INSERT INTO example (some_num)
 
 Will this code raise an error? Why or why not?
 
-
+Yes, this code will raise an error when attempting to run the `CREATE TABLE` statement. the `CHECK` in the `some_text` column is invalid, as we are not providing a valid comparison. We are likely attempting to ensure that the length of `some_text` is greater than 0, and must therefore evaluate the length utilizing `length(some_text) > 0;`
 
 
 #
@@ -172,6 +192,9 @@ Will this code raise an error? Why or why not?
 
 ```SELECT NULL IS NOT NULL;```
 
+False. Here we are evaluating `NULL` is NOT `NULL`. 
+
+Similarly, if we said 5 is not 5. this would be false. We do not use a comparison operator here because we are dealing with `NULL` values. If either side of an operation is `NULL` the result of the operation will be `NULL`. Thus, in order to compare, we must use `IS NULL` or `IS NOT NULL` syntax to get a meaningful result. 
 
 
 
@@ -184,12 +207,12 @@ Will this code raise an error? Why or why not?
 
 ```sql
 CREATE TABLE some_table (
-	some_num decimal(10,4) DEFAULT 'some text'
+	some_num decimal(10,4) DEFAULT 'some text',
 	some_t_or_f boolean DEFAULT true
 );
 ```
 
-
+This code will raise an error, as we are using an incompatible data type as a DEFAULT value for `some_num`. We specify a numeric data type (`decimal`) but then supply a text `DEFAULT` which would not meet the requirements enforced by the data type constraint. 
 
 
 #
@@ -209,7 +232,7 @@ INSERT INTO some_table (some_num, some_t_or_f)
 
 What values will be inserted into the table?
 
-
+11.0000 will be inserted and the `some_t_or_f` column will contain a `NULL` value for the row. Here we do not have a constraint which would disallow `NULL` values. The fact that it is not a `boolean` data type is irrelevant, because it is not a data type at all, it is `NULL`, the absence of value. 
 
 
 
@@ -228,7 +251,7 @@ CREATE TABLE teachers (
 CREATE TABLE classes (
 	id serial PRIMARY KEY,
 	name text,
-	teacher_id int REFERENCES teaachers (id) 
+	teacher_id int REFERENCES teachers (id) 
 		ON DELETE CASCADE
 );
 ```
