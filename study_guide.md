@@ -1,5 +1,37 @@
 # 181 Study Guide
 
+## Relational Databases
+  - A relation refers to a table in the database. 
+  - A relationship is an association between data that is stored in relations. 
+
+  - Relational data may be thought of as working with more than one table at a time. Data that is in relationship with other data, and working with the tables that store the data in order to examine or manipulate the data according to use case. 
+
+  - Relational databases are structured stores of data that model relationships between data held in multiple tables. Relational databases distribute data among multiple tables, and create connections between data through the use of primary and foreign keys. The Relational Model informs the rules and structures governing the relationships between data held in the database. 
+
+### Benefits of using relational databases include:
+  - Reduction in data duplication: Normalization
+   - Database normalization assists in reducing duplication, and maintaining integrity of data. The mechanism used to achieve normalization in a relational database includes distributing data among multiple tables and defining relationships between these tables. Normalization reduces the need to store the same data in more than one place, thus minimizing the risk of inconsistencies and update anomalies. 
+    - data is distributed across multiple tables, and associations between data are established by reference.
+    - reduces amount of data that needs to be stored
+    - increases integrity of data as it is stored in one place
+  - Data consistency
+    - data stored in a relational database is structured in a way that reduces the likelihood of update anomalies as updates to data should occur in one place, rather than having to seek out all areas within a database that may reference the same data. 
+  - Query flexibility
+    - relational databases allow for data to be accessed in a flexible manner, as we can target specific data stored across multiple tables.
+  - Organization and Modularity of data
+    - relational databases allow for enhanced organization and modularity of data as we are able to avoid storing duplicate data and contributing to bloated tables. 
+  - Scalability
+    - organizing data in a relational database protects data integrity, consistency, and reliability as more data is added. 
+
+
+  ### How relational databases support data integrity:
+  - Use of constraints surrounding what types of data can be stored, and how it should be formatted for storage. 
+  - Use of primary keys to uniquely identify records.
+  - Use of foreign keys to associate records with data stored in elsewhere in the database, and maintain referential integrity. 
+  - Unique constraints that limit duplication of data and increase referential integrity by ensuring unique identifiers. 
+  - Check constraints that ensure data meets particular standards for storage.
+  - Cascading Actions that automatically perform some action based on a triggering event. For example, foreign keys may contain an `ON DELETE` clause which tells the database how to properly handle associated data if records in related tables are deleted. 
+
 ## SQL
 
   ### About SQL
@@ -11,7 +43,7 @@
 
   #### Syntax Components
 
-  We interact with a relational database through issuing SQL Statements which describe the data we would like to access. SQL statements are comprised of keywords and subjective identifiers that enable us to define, access, and modify data in a database. 
+  We interact with a relational database through issuing SQL Statements. SQL statements are comprised of keywords and subjective identifiers that enable us to define, access, and modify data in a database. 
 
   SQL Commands: 
     - these keywords allow for describing the desired operation. 
@@ -88,7 +120,7 @@
 
   ### Identify the different types of `JOIN`s and explain their differences.
 
-  We often need to reference data that is distributed among multiple tables. In doing so, it may be useful to join tables together based on an association between them in order to access the targeted data. `JOIN` clauses enable us to combine rows from multiple tables by leveraging a related column via a conditional expression which dictates how the tables should be joined. 
+  We often need to reference data that is distributed among multiple tables. In doing so, it may be useful to join tables together based on an association between them in order to access the targeted data. `JOIN` clauses enable us to combine rows from multiple tables by leveraging an associated column and a conditional expression to dictate how the tables should be joined. 
   
   There are five main types of `JOIN`s, each allowing for different ways of merging and representing data across multiple tables.
 
@@ -102,7 +134,7 @@
   
   This type of `JOIN` will combine rows from the two tables where the join condition comparing data in the specified columns evaluates to `true`. 
   
-  When two tables are joined, each row in the first table (left) will be compared to each row in the second table (right) and evaluated on the join condition. If the two rows being compared satisfy the condition, they are joined together (including data from all columns in the row) and included as a single joined row in a 'transient' table. 
+  When two tables are joined, each row in the first table (left) will be compared to each row in the second table (right) and evaluated on the join condition. If the two rows being compared satisfy the condition, they are joined together and included as a single joined row in a 'transient' table. 
   
   The `SELECT` command will then utilize the 'transient' table in order to return targeted data as if it were querying a single table. 
 
@@ -586,9 +618,79 @@
 
   ##### Examples:
 
+          Runners Table
+
+    | id | name    | dob       |
+    |----|---------|-----------|
+    | 1  | Alice   | 1995-01-01|
+    | 2  | Bob     | 1990-05-15|
+    | 3  | Charlie | 1985-09-20|
+    | 4  | Diana   | 2000-02-25|
+
+-------------------------------------------
+              
+              Five_K Table
+
+| id | run_date  | five_k_time | runner_id |
+|----|-----------|-------------|-----------|
+| 1  | 2023-09-01| 00:20:15    | 1         |
+| 2  | 2023-09-15| 00:19:50    | 1         |
+| 3  | 2023-09-01| 00:22:30    | 2         |
+| 4  | 2023-09-20| 00:21:45    | 2         |
+| 5  | 2023-09-01| 00:23:00    | 3         |
+| 6  | 2023-09-20| 00:22:15    | 3         |
+| 7  | 2023-09-12| 00:18:30    | 4         |
+| 8  | 2023-09-20| 00:18:15    | 4         |
+
+#
+
+  - Objective: Return the fastest time recorded for each unique date.
+
+  In this example, we want to group the run times by date- this means that even though there are multiple entries for particular dates, we only include unique dates in the result set. Ungrouped data must then be included in an aggregate function in order to return only one value for each date. 
+
+  In this case we are returning the fastest time (minimum) time as the single value for each group of dates.
+
+  ```sql
+  SELECT run_date, MIN(five_k_time) AS fastest_time 
+  FROM five_k 
+    INNER JOIN runners ON five_k.runner_id = runners.id
+  GROUP BY run_date
+  ORDER BY run_date, fastest_time;
+
+  --
+  run_date  | fastest_time 
+------------+--------------
+ 2023-09-01 | 00:20:15
+ 2023-09-12 | 00:18:30
+ 2023-09-15 | 00:19:50
+ 2023-09-20 | 00:18:15
+(4 rows)
+    ``` 
 
 
-  ##### Tricky ones: 
+
+  Using subquery to also include name of runner who logged fastest time. 
+
+```sql
+  SELECT
+    run_date,
+    five_k_time AS fastest_time,
+    name
+FROM
+    five_k
+    JOIN runners ON runner_id = runners.id
+WHERE (run_date, five_k_time) IN (
+    SELECT
+        run_date,
+        MIN(five_k_time)
+    FROM
+        five_k
+    GROUP BY
+        run_date)
+ORDER BY
+    run_date,
+    fastest_time;
+```
 
 #
 
@@ -606,9 +708,6 @@
   
   We can also use `ORDER BY` in conjunction with a `LIMIT` clause to find the most recent, or most popular review by ordering the results to start with the most recent, or most popular and limiting the results to `1`. 
 
-  ##### Examples:
-
-  ##### Tricky ones: 
 
 #
 
@@ -624,9 +723,6 @@
 
   Utilized to refine query based on a conditional expression. Suppose we had a table keeping track of 5k running times for particular athletes, and we wanted to return a list of times from athletes older than 25. We could utilize a `WHERE` clause to provide the condition, filtering out data from athletes 25 years of age or younger. 
 
-  ##### Examples:
-
-  ##### Tricky ones: 
 
 #
 
@@ -643,9 +739,51 @@
 
   If we have a table containing 5k running times from athletes, we can group the data based on an athlete's age and then further refine the results utilizing a `HAVING` clause to eliminate results from athletes under 18. 
 
-  ##### Examples:
+  ##### Example:
 
-  ##### Tricky ones: 
+            Runners Table
+
+    | id | name    | dob       |
+    |----|---------|-----------|
+    | 1  | Alice   | 1995-01-01|
+    | 2  | Bob     | 1990-05-15|
+    | 3  | Charlie | 1985-09-20|
+    | 4  | Diana   | 2000-02-25|
+
+-------------------------------------------
+              
+              Five_K Table
+
+| id | run_date  | five_k_time | runner_id |
+|----|-----------|-------------|-----------|
+| 1  | 2023-09-01| 00:20:15    | 1         |
+| 2  | 2023-09-15| 00:19:50    | 1         |
+| 3  | 2023-09-01| 00:22:30    | 2         |
+| 4  | 2023-09-20| 00:21:45    | 2         |
+| 5  | 2023-09-01| 00:23:00    | 3         |
+| 6  | 2023-09-20| 00:22:15    | 3         |
+| 7  | 2023-09-12| 00:18:30    | 4         |
+| 8  | 2023-09-20| 00:18:15    | 4         |
+
+
+Objective: use `GROUP BY` and `HAVING` clause to return the fastest times on each unique date, only if the time is under 20 minutes. 
+
+```sql
+SELECT run_date, MIN(five_k_time) AS fastest_time
+FROM five_k
+GROUP BY run_date
+HAVING MIN(five_k_time) < '00:20:00';
+
+---
+
+  run_date  | fastest_time 
+------------+--------------
+ 2023-09-12 | 00:18:30
+ 2023-09-15 | 00:19:50
+ 2023-09-20 | 00:18:15
+```
+
+
 
 #
 #
@@ -666,7 +804,7 @@
 
   ###### `PRIMARY KEY`
   
-  A `PRIMARY KEY` is a unique identifier for a particular row of data in a table. A table may have only one `PRIMARY KEY`, and enforces `NOT NULL` and `UNIQUE` constraints by default. In order to establish consistent relationships between tables, we must be able to uniquely identify rows containing particular data. `PRIMARY KEYS` are often utilized in conjunction with `FOREIGN KEYS` to associate a row in one table, with a row in another table. These keys effectively enable data to become 'relational'.
+  A `PRIMARY KEY` is a unique identifier for a particular row of data in a table. A table may have only one `PRIMARY KEY`, and enforces `NOT NULL` and `UNIQUE` constraints by default. Establishing a column as the `PRIMARY KEY` indicates within the schema that we may identify unique records in the table using the values in that column. In order to establish consistent relationships between tables, we must be able to uniquely identify rows containing particular data. `PRIMARY KEYS` are often utilized in conjunction with `FOREIGN KEYS` to associate a row in one table, with a row in another table. These keys effectively enable data to become 'relational'.
 
   ###### Syntax Options: Defining `PRIMARY KEY`
 
@@ -709,7 +847,8 @@
 
   ##### `FOREIGN KEY`
 
-  A `FOREIGN KEY` is utilized in order to create a relationship between two records, typically by referencing a row's `PRIMARY KEY` in another table. When defining a `FOREIGN KEY` we utilize the `REFERENCES` keyword, followed by the name of the table, and column being referenced in the association. `FOREIGN KEYS` are vital in ensuring referential integrity between tables. Referential integrity ensures that the data being referenced actually exists, and the relationship remains consistent by enforcing the boundaries of the association as a one-to-one, one-to-many, or many-to-many relationship. 
+  A `FOREIGN KEY` is utilized in order to create a relationship between two records, typically by referencing a row's `PRIMARY KEY` in another table. When defining a `FOREIGN KEY` we utilize the `REFERENCES` keyword, followed by the name of the table, and column being referenced in the association. `FOREIGN KEYS` are vital in ensuring referential integrity between tables. Referential integrity ensures that the data being referenced actually exists, and the relationship remains consistent by enforcing the boundaries of the association as a one-to-one, one-to-many, or many-to-many relationship.   
+      - Error thrown if try to add value to Foreign Key column of a table if Primary Key column of the table it is referencing does not already contain that value. 
 
 
   ###### Syntax Options: 
@@ -992,37 +1131,437 @@
 #
 
 
-  ### Be familiar with using subqueries
+### Be familiar with using subqueries
+
+#### When to use subqueries
+
+Personal preference until looking at optimization metrics. In some situations, one may be more readable, more logical, or simpler.
+
+For example, if you want to return data from one table conditional on data from another table, but don't need to return any data from the second table, a subquery may make more logical sense and aid readability. 
+
+If you need to return data from both tables, use a join. 
 
   #### Subqueries
 
-  ##### Description:
+  ##### Description: 
+  In some situations, a subquery can be more efficient that using a join.
 
-  ##### Subqueries vs `JOIN`s
+  Subqueries essentially issue a `SELECT` query, and then use the results of that `SELECT` query as a condition in another `SELECT` query. We are nesting queries here. 
+
+  Subquery expressions: PostgreSQL provides expressions that can be used specifically with subqueries such as:
+  - `IN`
+  - `NOT IN`
+  - `ANY`
+  - `SOME`
+  - `ALL`
+
+These essentially compare values to the result of a subquery.
 
   ##### Examples: 
 
-  ##### Tricky ones: 
+  ```sql
+  my_books=# SELECT * FROM authors;
+ id |      name
+----+----------------
+  1 | William Gibson
+  2 | Iain M. Banks
+  3 | Philip K. Dick
+(3 rows)
 
-  ##### Optimization Implications
+my_books=# SELECT * FROM books;
+ id |        title         |     isbn      | author_id
+----+----------------------+---------------+-----------
+  1 | Neuromancer          | 9780441569595 |         1
+  2 | Consider Phlebas     | 9780316005388 |         2
+  3 | Idoru                | 9780425158647 |         1
+  4 | The State of the Art | 0929480066    |         2
+  5 | The Simulacra        | 9780547572505 |         3
+  6 | Pattern Recognition  | 9780425198681 |         1
+  7 | A Scanner Darkly     | 9780547572178 |         3
+(7 rows)
+  ```
+
+### Using `=` because subquery returns single value
+
+```sql
+SELECT title FROM books WHERE author_id = 
+  (SELECT id FROM authors WHERE name = 'William Gibson');
+```
+
+1. The nested query, when executed, returns the `authors.id` value that satisfies the condition (`name = 'William Gibson`).
+2. The subquery returns the integer `1`. 
+3. The outer query, then uses this value to complete its operation.
+  - `SELECT title FROM books WHERE author_id = 1;`
 
 
+#
 
+### `EXISTS`
 
+Checks whether *any* rows at all are returned by the nested query. 
+  - if at least one row returned, evaluates to true, otherwise false. 
+
+```sql
+SELECT 1 WHERE EXISTS
+  (SELECT id FROM books
+    WHERE isbn = '9780316005388');
+
+--- returns
+
+?column?
+-----------
+        1
+(1 row)
+```
+This returns `1` if there is a row in the `books` table with the corresponding `isbn` and no rows otherwise.
+
+```sql
+
+SELECT name FROM bidders
+  WHERE EXISTS (
+    SELECT 1 FROM bids 
+      WHERE bids.bidder_id = bidders.id
+  );
+```
+#
+
+### `IN`
+
+Compares an evaluated expression to every row in the subquery result. 
+  - If a row equal to the evaluated expression is found, then the result of `IN` is true, otherwise false.
+
+```sql
+SELECT name FROM authors WHERE id IN
+  (SELECT author_id FROM books
+    WHERE title LIKE 'The%');
+
+--- returns
+
+  name
+----------
+Iain M. Banks
+Philip K. Dick
+(2 rows)
+```
+
+In this case, the nested query returns a list of `author_id` values `(2, 3)` from the `books` table where the title of the books for that row starts with `'The'`. 
+
+The outer query returns the `name` value from any row of the `authors` table where the `id` for that row is in the results from the nested query. 
+
+#
+
+### `NOT IN`
+
+Similar to `IN` except result of `NOT IN` is true if an equal row is NOT found, and false otherwise. 
+
+```sql
+SELECT name FROM authors WHERE id NOT IN
+  (SELECT author_id FROM books
+    WHERE title LIKE 'The%');
+
+--- returns
+
+  name
+---------
+William Gibson
+(1 row)
+```  
+  
+#
+
+### `ANY` / `SOME`
+
+`ANY` and `SOME` are synonyms and can be used interchangeably. 
+
+These expressions are used along with an operator (`=`, `<`, `>`, etc). 
+
+The result of `ANY` or `SOME` is true if *any* true result is obtained when the expression to the left of the operator is evaluated using that operator against the results of the nested query. 
+
+```sql
+SELECT name FROM authors WHERE length(name) > ANY
+  (SELECT length(title) FROM books
+    WHERE title LIKE 'The%');
+
+--- returns
+
+ name
+----------------
+ William Gibson
+ Philip K. Dick
+(2 rows)
+```
+
+The nested query will return a list of lengths (integers) of titles that start with 'The'. 
+
+The outer query then returns the name of any author where the length of name is greater than any of the results from the nested query. 
+
+Two of the author names are 14 characters in length and so satisfy the condition since they are greater in length than at least one of the title lengths (13) from the results of the nested query.
+
+Note: when the = operator is used with ANY / SOME, this is equivalent to IN.
+
+#
+
+### `ALL`
+
+`ALL` is used alongside an operator.
+
+The result is true if *all* the results are true when the expression to the left of the operator is evaluated using that operator against the results of the nested query. 
+
+```sql
+SELECT name FROM authors WHERE length(name) > ALL
+  (SELECT length(title) FROM books
+    WHERE title LIKE 'The%');
+
+--- returns
+ name
+------
+(0 rows)
+```
+
+NOTE: when the `<>` or `!=` operator is used with `ALL` this is equivalent to `NOT IN`. 
+
+#
 
 ## PostgreSQL
 
   - Describe what a sequence is and what they are used for.
+    
+    ### What is a sequence?
+    
+    A sequence is a database object that generates sequential, unique integer values. 
+
+    A sequence is created using the syntax `CREATE SEQUENCE sequence_name;`. We can optionally define particular start values, increment intervals, minimum and maximum values, etc. when a sequence is created. Unless otherwise specified, the default starting value for a newly created sequence is 1, and it will increment by 1 each time the sequence is called. 
+    
+    Once created, a sequence exists in the database independent of any association with tables, though the sequence may be utilized by numerous tables. 
+    
+    ### What is a sequence used for?
+
+    Sequences are often used as value generators for surrogate keys in relations, which may or may not act as the table's `PRIMARY KEY`. The PostgreSQL convention of using `serial` as a pseudo-data-type provides a shorthand way of creating a sequence of default values for a particular column. 
+    
+    When creating a table, we often encounter the following syntax: 
+
+    ```sql
+    CREATE TABLE my_table (
+      id serial PRIMARY KEY
+      ...
+    )
+    ```
+    Utilizing `serial`, we create a new sequence, and set the default value for the `id` column to the next value generated by the sequence. By utilizing a sequence object in this way (as `PRIMARY KEY`), we can ensure that values in the `id` column are system generated, `NOT NULL`, `UNIQUE`, and serve as unique identifiers for rows of data. 
+
+    In addition to use in generating surrogate keys, a sequence can be called directly to generate a value. We can use `nextval()` to return the next value in the sequence, `currval()` to return the current value, or `setval()` to manually assign a current value. 
+    
+    A sequence can be reset to a starting value using the following syntax: 
+
+    ```sql
+    ALTER SEQUENCE your_sequence_name RESTART WITH 1;
+    ```
+    
+    The core functionality of a sequence is the generation of sequential, unique, numeric values. The way these values are utilized and leveraged is determined by the overall schema. 
+
+#
+
   - Create an auto-incrementing column.
-  - Define a default value for a column.
-  - Be able to describe what primary, foreign, natural, and surrogate keys are.
-  - Create and remove CHECK constraints from a column.
-  - Create and remove foreign key constraints from a column.
+
+  ```sql
+  CREATE TABLE my_table (
+    id serial PRIMARY KEY,
+    name text, 
+    lucky_number serial
+  );
+  ```
+
+   `serial` is not a true data type, but instead a PostgreSQL convention and acts as a pseudo-data-type. `serial` provides shorthand notation for creating a sequence object and assigning it as the default value for the column.
+   
+  In the example above, we create two auto-incrementing columns (id and lucky_number). We use the `serial`, which is shorthand for: 
+
+  ```sql
+  --- Create a sequence 
+
+  CREATE SEQUENCE my_table_id_seq;
+
+  --- and set as default for column
+
+  CREATE TABLE... 
+    id integer DEFAULT nextval('my_table_id_seq'),
+    ...
+
+  --- AND 
+
+  CREATE SEQUENCe lucky_num_seq;
+
+  lucky_number integer DEFAULT nextval('lucky_num_seq');
+  
+  ```
+ Once a number is returned by `nextval` for a standard sequence, it will not be returned again, regardless of whether the value was stored in a row or not. 
+
+```sql
+ CREATE [ { TEMPORARY | TEMP } | UNLOGGED ] SEQUENCE [ IF NOT EXISTS ] name
+    [ AS data_type ]
+    [ INCREMENT [ BY ] increment ]
+    [ MINVALUE minvalue | NO MINVALUE ] [ MAXVALUE maxvalue | NO MAXVALUE ]
+    [ START [ WITH ] start ] [ CACHE cache ] [ [ NO ] CYCLE ]
+    [ OWNED BY { table_name.column_name | NONE } ]
+```
+ #
+ #
+
+
+- Be able to describe what primary, foreign, natural, and surrogate keys are.
+   - Keys 
+    - special type of constraint used to establish relationships and uniqueness. 
+ 
+ How relationships established
+  - The relationships between tables are established through the use of primary and foreign keys. Primary keys are unique identifiers for a row of data in a table, while foreign keys typically reference a primary key of another table in order to form an association. Primary and foreign keys work together to support referential integrity between normalized data by ensuring that the data being referenced exists, and that the relationship remains consistent.  
+
+
+### Natural Keys
+  - natural 'part of the data' and unique identifiers *by nature* of the data they represent. 
+    - They are attributes of the entity itself, that happen to represent information qualified to uniquely identify a particular entity. 
+    - Not ideal solution for large data sets, where there may be difficulty establishing enduring distinct values. 
+  - natural keys are unique identifiers that are part of the data set itself, and have some business or real world meaning. natural keys may be attributes of a data set that are inherently likely to be unique, such as social security numbers, isbn numbers, VIN numbers, etc. They serve as identifiers for specific entities based on the nature of the data they represent as being attributable to only one entity. 
+  - natural keys can be problematic however, as they are subject to environmental forces in the real world and may change. By using natural keys we create a dependency between the database and the business or real world. 
+
+  - Example of natural key: 
+    - Home address
+       the id here is by *nature*, unique. It uniquely identifies a particular house within a larger geographic area. and most notably it is naturally associated with the house. Addresses lend themselves naturally to identify real estate. The address marks an area where the collection of attributes which comprise the house, exists. And even if all of the other attributes besides its address were the exact same as hundreds of other entries, we still can find our house by its address.
+
+### Surrogate Keys
+  - Surrogate keys are effective in mitigating risks inherent in utilizing natural keys in a database. Surrogate keys are unique identifiers for rows of data that only have meaning within the context of the database itself. Surrogate keys do not have any real-world or business meaning, but exist solely identify a particular record. Surrogate keys are commonly system generated as we see with auto-incrementing integers serving as `PRIMARY KEY`s in a relation. A distinct benefit of utilizing surrogate keys is that they are not subject to real-world changes that may affect the entity itself, while it is entirely possible that a natural key like an address may change over time, a surrogate key remains consistent. 
+
+## Foreign Keys (additional)
+
+
+### Foreign Keys May refer to two different, but related things:
+
+1. Foreign Key Column
+  - column that represents relationship between two rows, by pointing to a specific row in another table using its *primary key*. 
+  - stores reference to primary key column elsewhere in the database.
+
+2. Foreign Key Constraint
+  - constraint that enforces rules about what values are permitted in these foreign key relationships. 
+
+
+### Creating Foreign Key Columns
+
+Create a column of the same type as the primary key column it will point to. 
+
+#### Creating Foreign Key Constraints
+
+Two syntax options...
+
+1. Add `REFERENCES` clause to description of a column in `CREATE TABLE` statement.
+
+```sql
+CREATE TABLE orders (
+  id serial PRIMARY KEY, 
+  product_id integer REFERENCES products (id),
+  quantity integer NOT NULL
+);
+```
+
+
+2. Add foreign key constraint separately to existing table
+
+```sql
+ALTER TABLE orders ADD CONSTRAINT orders_product_id_fkey FOREIGN KEY (product_id) REFERENCES products(id);
+```
+
+
+**Benefit of Referential Integrity**
+
+Using foreign key constraints preserves referential integrity of the data in the database. 
+
+Ensures every value in a foreign key column exists in the primary key column of the table being referenced. 
+
+If attempt to insert row that violate the constraint, will raise error. 
+
+
+
+
+### FOREIGN KEY constraints DO NOT prevent NULL values from being stored in the column
+
+Often necessary to use `NOT NULL` and a foreign key constraint together. 
 
 ## Database Diagrams
 
+  - Ask:
+    - what level of schema is represented?
+    - how are relationships shown?
+    - are attributes and data types shown?
+
   - Talk about the different levels of schema.
+    - Conceptual
+      - higher level concepts/entities
+      - thinking about data abstractly, not how data or relationships will be stored in database
+      - focus is identifying entities and their relationships
+      
+      - Entity relationship diagram is an example of conceptual schema
+        - focus purely on entities and how they relate
+          - not focused on tables
+        - thinking about what data being represented, adn how grouped into entities that represent specific pieces of functionality of application. 
+    
+    
+    - Logical 
+      - may include attributes and data types, but not lower level implementation details for a particular database
+    
+    
+    - Physical
+      - implementation details of how the data will be stored and relationships between data. 
+      - attributes, data-types, constraints
+      - low level, database specific
+
+      - In model, shows description of actual tables being used
+        - table names
+        - column names
+        - data types
+        - keys
+        - constraints
+        - relationships
+
+    - The physical schema of one-to-one and one-to-many relationships are essentially the same. 
+    May make more sense to move into same table for one-to-one. 
+
   - Define cardinality and modality.
+
+    ## Cardinality
+
+      - Description: 
+      
+      Cardinality refers to the number of entity instances on each side of the relationship being modeled. One way to think about cardinality between entities is to consider a single entity instance on one side of the relationship, and ask "what is the maximum number of times that this particular row could be associated with a row in the other relation?" 
+
+      Cardinality is expressed as: 
+
+      - One-to-One relationships exist when an entity instance in one table could be associated with a maximum of one entity instance in another table. An example of a one-to-one relationship is a car and its associated VIN number. Each car has a unique VIN number. When we consider a particular entity instance of a car, let's say my 2015 Honda Fit, the maximum number of times that my car could be associated with an entity instance of a VIN number is one. In return, a particular VIN number may be associated with a maximum of one vehicle.
+
+        - `FOREIGN KEY`s in one-to-one relationships should have a `UNIQUE` and `NOT NULL` constraint in order to preserve referential integrity. 
+    
+
+      - One-to-many relationships exist when an entity instance in one table may be associated with numerous entity instances in another table. Consider a table holding customer data, and another keeping records of pizza orders. When we select a single person, in the `customers` table, it is entirely possible that this customer is associated with many different order instances in the `orders` table. However, if we select one entity instance from the `orders` table, it may be associated with a maximum of one customer in the `customers` table. 
+
+        - `UNIQUE` constraints should NOT be applied to the `FOREIGN KEY` column on the 'many' side of a one-to-many relationship. If we were to apply a `UNIQUE` constraint on the 'many' side of the relationship, this would violate referential integrity of the association being modeled. 
+          - example: A person has one date of birth, but this date of birth is associated with numerous other people. If date of birth were a `FOREIGN KEY` and we utilized a `UNIQUE` constraint, we would effectively be creating a invalid one-to-one relationship. 
+
+
+      - Many-to-many relationships exist when an entity instance in one table may be associated with numerous entity instances in another table, and vice-versa. For example, consider an entity representing `books` and another representing `genres`. It would make sense relationally that a single book may be associated with many genres, and one particular genre may be associated with many different books. 
+
+        - Join tables in many-to-many relationships often have a `UNIQUE` constraint on combinations of `FOREIGN KEYS` represented in the table.
+        
+        - a join table associates entities in a many-to-many relationship by referencing the `PRIMARY KEY`s of each entity as `FOREIGN KEY`s in the join table. Each row represents an instance of the many-to-many relationship
+        
+          - example: A doctor has many patients, and a patient may have many doctors. In the join table, each row would include a `FOREIGN KEY` referencing a doctor, paired with a `FOREIGN KEY` referencing a patient in their respective tables. `UNIQUE` constraints are utilized to guard against duplication of the relationship in the join table.
+
+
+#
+#
+
+
+  ## Modality
+  - the minimum number of entity instances that are required to exist on either side of a relationship. Typically represented by 0 (not required) or 1 (required)
+
+  - for example: 
+
+  we have a runners table containing runners in a particular club, we have a race table that lists times attributed to individual runners. this is a one to many relationship with a modality of 1 on the runners side and 0 on the race side.. we require a runner to be associated with a time, but we don't require that all runners participate in the race
+
   - Be able to draw database diagrams using crow's foot notation.
 
 
@@ -1093,3 +1632,95 @@ SELECT NULL IS NULL;
   - NOT NULL Constraint
   - Check Constraint
 
+
+##
+
+### Database dumps
+  - extract with insert statements 
+  
+  `pg_dump -d my_database -t my_table --inserts > dump.sql`
+
+
+  Setting up reference to ensure **referential integrity** of a relationship.
+    - assurance that a column value within a record must reference an existing value.
+      - Error thrown if try to add value to Foreign Key column of a table if Primary Key column of the table it is referencing does not already contain that value. 
+
+
+### using Copy for csv files
+
+-- Copy data for bidders from the csv file to the bidders table
+`\copy bidders FROM 'bidders.csv' WITH HEADER CSV`
+
+-- Copy data for items from the csv file to the items table
+`\copy items FROM 'items.csv' WITH HEADER CSV`
+
+-- Copy data for bids from the csv file to the bids table
+`\copy bids FROM 'bids.csv' WITH HEADER CSV`
+
+
+More subquery examples:
+
+```sql
+SELECT items.name FROM items
+WHERE items.id IN (
+  SELECT item_id FROM bids
+);
+```
+```sql
+SELECT e.name, e.department_id
+FROM employees e
+WHERE e.salary > (
+    SELECT AVG(e2.salary)
+    FROM employees e2
+    WHERE e2.department_id = e.department_id
+);
+
+In this example, e.department_id from the outer query is used in the subquery to calculate the average salary for each department.
+```
+
+```sql
+SELECT MAX(bid_counts.count) FROM
+  (SELECT COUNT(bidder_id) FROM bids GROUP BY bidder_id) AS bid_counts;
+```
+
+
+## Scalar subqueries 
+
+
+Scalar Subqueries
+
+For this exercise, use a scalar subquery to determine the number of bids on each item. The entire query should return a table that has the name of each item along with the number of bids on an item.
+
+Here is the expected output:
+
+    name      | count
+--------------+-------
+Video Game    |     4
+Outdoor Grill |     1
+Painting      |     8
+Tent          |     4
+Vase          |     9
+Television    |     0
+(6 rows)
+
+Refer to the PostgreSQL documentation on scalar subqueries to solve this exercise. Keep a few key facts in mind:
+
+    You may reference columns within your subquery from the outer SELECT query. Those values will act as constants for the current subquery evaluation.
+    A scalar subquery must only return one column and one row.
+
+Solution
+```sql
+SELECT name,
+       (SELECT COUNT(item_id) FROM bids WHERE item_id = items.id)
+FROM items;
+```
+## using ROW operation to get id
+
+```sql
+SELECT id FROM items
+WHERE ROW('Painting', 100.00, 250.00) =
+  ROW(name, initial_price, sales_price);
+```
+
+
+###
